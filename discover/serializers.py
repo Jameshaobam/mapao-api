@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from . models import Category,Discover,Review
+from . models import Category,Discover,Review,DiscoverEditorChoice
 
 #TODO FOR DISPLAY ONLY
 class DiscoverSerializer(serializers.ModelSerializer):
@@ -34,13 +34,28 @@ class DiscoverSerializer(serializers.ModelSerializer):
        return f"http://127.0.0.1:8000/api/v1/discover/{obj.id}/like"
    
 
-   poster_id = serializers.SerializerMethodField("poster_id_get")
-   def poster_id_get(self,obj):
-        return obj.poster.id
+   poster = serializers.SerializerMethodField("poster_get")
+   def poster_get(self,obj):
+        return {
+            "profile_id":obj.poster.id,
+            "username":obj.poster.username
+        }
+   
+   iseditorchoice = serializers.SerializerMethodField("editorchoice")
+   def editorchoice(self,obj):
+        return DiscoverEditorChoice.objects.filter(discover_item_id = obj.id).exists()
+   
+   #TODO: Getting context from views
+   isowner = serializers.SerializerMethodField()
+   def get_isowner(self,obj):
+        
+        return self.context.get("user_id") == obj.poster.user.id
    class Meta:
         model = Discover
-        read_only_fields = ('id', 'created_time','likes','category_fn',"location","like_url") #Post twrkpada add twraroi read khk oirani
-        fields = ["id","title","description","category_fn","location","likes","source_link","social_media_link","like_url","poster_id"] #display twrani aduga Post twvada accept twgadaba feild khei
+        read_only_fields = ('id', 'created_time','likes','category_fn',"location","like_url","iseditorchoice") #Post twrkpada add twraroi read khk oirani
+        fields = ["id","title","description","category_fn","location",
+                  "likes","source_link","social_media_link","like_url",
+                  "poster","iseditorchoice","isowner","logo"] #display twrani aduga Post twvada accept twgadaba fields khei
      
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -59,13 +74,20 @@ class PostDiscoverSerializer(serializers.ModelSerializer):
         #Not accepting values from POST req 
         read_only_fields = ('id', 'created_time')
         #Post data twrkpada asigi fields khei siga manana twraga save twgadaba asida yaodaba twba yade
-        fields = ["id","title","description","category","origin_location","based_location","source_link","social_media_link","poster"]
+        fields = ["id","title","description","category","origin_location","based_location","source_link","social_media_link","poster","logo"]
 
 
 
 class ReviewSerializer(serializers.ModelSerializer):
 
+    reviewer = serializers.SerializerMethodField()
+    def get_reviewer(self,obj):
+        return {
+            "profile_id":obj.reviewer.id,
+            "username":obj.reviewer.username
+        }
+
     class Meta:
         model = Review
         read_only_fields = ('id', 'created_time')
-        fields = ["id","discover_item","review_description","created_time"]
+        fields = ["id","discover_item","review_description","created_time","reviewer"]

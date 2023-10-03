@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from account.models import Profile
+from feed.models import Feed
 
 class Category (models.Model):
     name = models.CharField(max_length=150)
@@ -18,6 +19,7 @@ class Category (models.Model):
 class Discover(models.Model):
     title = models.CharField(max_length=250)
     description = models.CharField(max_length=500)
+    logo =models.CharField(max_length=300,null=True,blank=True)
     origin_location = models.CharField(max_length=150)
     based_location = models.CharField(max_length=150)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
@@ -36,18 +38,21 @@ class Discover(models.Model):
 
 class Like(models.Model):
     discover_item = models.ForeignKey(Discover,on_delete=models.CASCADE)
+    liker = models.ForeignKey(Profile,on_delete=models.CASCADE)
     
     class Meta:
         verbose_name = "Like"
         verbose_name_plural = "Likes"
 
     def __str__(self) -> str:
-        return f"{self.id}|{self.discover_item.title}"
+        return f"{self.id}|{self.discover_item.title}|| {self.liker}"
     
 class Review(models.Model):
     discover_item = models.ForeignKey(Discover,on_delete=models.CASCADE)
     review_description = models.CharField(max_length=1000)
     created_time = models.DateTimeField(auto_now_add=True)
+    reviewer = models.ForeignKey(Profile,on_delete=models.CASCADE)
+    
 
     class Meta:
         verbose_name = "Review"
@@ -55,4 +60,12 @@ class Review(models.Model):
 
     def __str__(self) -> str:
         return f"{self.id}|{self.discover_item.title}"
+    
+class DiscoverEditorChoice(models.Model):
+    discover_item = models.ForeignKey(Discover,on_delete=models.CASCADE)
+    admin = models.ForeignKey(Profile,on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.discover_item} || {self.admin} || {self.id}"
+    
+
 
