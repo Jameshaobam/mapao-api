@@ -12,6 +12,7 @@ urlpatterns = [
     path('v1/discover/<int:disc_id>/like/',views.likeDiscover,name='likeDiscover'),
     path('v1/discover/<int:disc_id>/delete/',views.deleteDiscover,name='deleteDiscover'),
     path('v1/discover/<int:disc_id>/add-review/',views.addReview,name='addReview'),
+    path('v1/discover/<int:review_id>/delete-review/',views.deleteReview,name='addReview'),
     path('v1/discover/<int:disc_id>/update/',views.updateDiscover,name='updateDiscover'),
     # to be added editor choice end point
     path('v1/discover/ec/<int:disc_id>/',views.makeEditorChoice,name='makeEditorChoice'),
